@@ -29,7 +29,7 @@ msg="$(quote_args "$@")"
 cd "${src_dir}"
 if ! nc -N -U server <<< "${msg}" 2>/dev/null; then
     rm -f server
-    python3 -m pyrelight &>server.log &
+    python3 -u -m pyrelight &>server.log &
     for i in {1..50}; do
         if [[ -S server ]]; then
             nc -N -U server <<< "${msg}"
@@ -40,7 +40,7 @@ if ! nc -N -U server <<< "${msg}" 2>/dev/null; then
     echo "failed to start server!" >&2
     if [[ -s server.log ]]; then
         echo "here is the error message we got from the server:" >&2
-        cat server.log | sed 's/^/  ' >&2
+        cat server.log | sed 's/^/  /' >&2
     else
         echo "unfortunately, we didn't get any diagnostic info from the server." >&2
     fi
