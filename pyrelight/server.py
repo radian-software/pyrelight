@@ -16,7 +16,7 @@ def listen(pathname, respond):
         pass
     sel = selectors.DefaultSelector()
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
-        sock.bind(pathname)
+        sock.bind(str(pathname))
         sock.listen()
         sock.setblocking(False)
         sel.register(sock, selectors.EVENT_READ, data=None)
