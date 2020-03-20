@@ -101,6 +101,7 @@ Commands:
 ```
 play
 pause
+toggle
 
 rewind [<amt>]
 ff [<amt>]
@@ -108,7 +109,7 @@ seek <timestamp>
 
 prev [<num>]
 next [<num>]
-goto [<idx>]
+goto <idx>
 
 first
 last
