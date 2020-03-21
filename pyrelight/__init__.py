@@ -1,0 +1,2 @@
+class PyrelightError(Exception):
+    pass

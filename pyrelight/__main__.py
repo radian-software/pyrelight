@@ -4,7 +4,9 @@ import shlex
 import sys
 import traceback
 
+from pyrelight import PyrelightError
 import pyrelight.cmdline
+import pyrelight.commands
 import pyrelight.server
 
 print("Starting PYRELIGHT server.", file=sys.stderr)
@@ -23,8 +25,11 @@ def respond(msg):
         elif args is False:  # exit with failure, e.g. from invalid arguments
             status = "error"
         else:
+            output += pyrelight.commands.handle(args)
             status = "success"
-            output += "done\n"
+    except PyrelightError as e:
+        status = "error"
+        output += str(e) + "\n"
     except Exception as e:
         status = "error"
         output += traceback.format_exc()
