@@ -6,14 +6,17 @@ class ArgumentParserExit(Exception):
         self.status = status
 
 
-class FriendlyArgumentParser(argparse.ArgumentParser):
-    def parse_args(self, *args, **kwargs):
-        self.output = ""
-        return super().parse_args(*args, **kwargs)
+# Yuck. Blame argparse. I can't do it with a class-local variable
+# because multiple instances of ArgumentParser are involved when
+# dealing with subcommands.
+global_output = None
 
+
+class FriendlyArgumentParser(argparse.ArgumentParser):
     def _print_message(self, message, file=None):
+        global global_output
         if message:
-            self.output += message
+            global_output += message
 
     def exit(self, status=0, message=None):
         self._print_message(message)
@@ -441,8 +444,10 @@ for flag in ("-?", "-help"):
 
 
 def parse_cmdline(cmdline):
+    global global_output
+    global_output = ""
     try:
         args = parser.parse_args(cmdline)
-        return (args, parser.output)
+        return (args, global_output)
     except ArgumentParserExit as e:
-        return (e.status == 0, parser.output)
+        return (e.status == 0, global_output)
