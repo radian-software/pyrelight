@@ -20,23 +20,24 @@ function quote_args() {
     echo
 }
 
+# https://stackoverflow.com/a/33054561/3538165
+# https://unix.stackexchange.com/a/176703/176805
 function connect() {
     exit_code=
-    nc -N -U server <<< "${msg}" 2>/dev/null | while read line; do
-        echo "got line: |${line}|" >&2
+    while IFS= read -r line || ! nc_status="${line}"; do
         if [[ -z "${exit_code}" ]]; then
             case "${line}" in
                 success) exit_code=0 ;;
                 error  ) exit_code=1 ;;
                 *      )
                     echo "plt: got unexpected response from server: ${line}" >&2
-                    exit 1
+                    exit 1 ;;
             esac
         else
             printf "%s\n" "${line}" >&2
         fi
-    done
-    if (( "${PIPESTATUS[0]}" != 0 )); then
+    done < <(set +e; nc -N -U server <<< "${msg}" 2>/dev/null; echo -n "$?")
+    if (( "${nc_status}" != 0 )); then
         return 1
     elif [[ -z "${exit_code}" ]]; then
         echo "plt: didn't get any response from server" >&2

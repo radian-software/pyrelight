@@ -1,6 +1,25 @@
 import argparse
 
 
+class ArgumentParserExit(Exception):
+    def __init__(self, status):
+        self.status = status
+
+
+class FriendlyArgumentParser(argparse.ArgumentParser):
+    def parse_args(self, *args, **kwargs):
+        self.output = ""
+        return super().parse_args(*args, **kwargs)
+
+    def _print_message(self, message, file=None):
+        if message:
+            self.output += message
+
+    def exit(self, status=0, message=None):
+        self._print_message(message)
+        raise ArgumentParserExit(status=status)
+
+
 class StoreConstPlusAction(argparse.Action):
     def __init__(self, option_strings, dest, nargs=None, val_dest=None, **kwargs):
         self.val_dest = val_dest if val_dest is not None else dest
@@ -11,7 +30,7 @@ class StoreConstPlusAction(argparse.Action):
         setattr(namespace, self.val_dest, values)
 
 
-parser = argparse.ArgumentParser(
+parser = FriendlyArgumentParser(
     prog="plt", description="Fast command-line music library manager and media player.",
 )
 subparsers = parser.add_subparsers(
@@ -419,3 +438,11 @@ parser_restart = subparsers.add_parser(
 
 for flag in ("-?", "-help"):
     parser.add_argument(flag, dest="help", action="store_true", help=argparse.SUPPRESS)
+
+
+def parse_cmdline(cmdline):
+    try:
+        args = parser.parse_args(cmdline)
+        return (args, parser.output)
+    except ArgumentParserExit as e:
+        return (e.status == 0, parser.output)

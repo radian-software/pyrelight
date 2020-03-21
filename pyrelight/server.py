@@ -61,4 +61,4 @@ def process(data, respond):
         msg = data.inb[:idx].decode()
         response = respond(msg).encode()
         data.inb = data.inb[idx + 1 :]
-        data.outb += response + b"\n"
+        data.outb += response
