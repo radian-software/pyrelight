@@ -44,4 +44,5 @@ if ! nc -N -U server <<< "${msg}" 2>/dev/null; then
     else
         echo "unfortunately, we didn't get any diagnostic info from the server." >&2
     fi
+    exit 1
 fi
