@@ -3,7 +3,10 @@
 import pathlib
 import selectors
 import socket
+import sys
 import types
+
+import pyrelight
 
 
 BUFSIZE = 1024
@@ -36,23 +39,23 @@ def accept(sel, sock):
 
 
 def service(sel, key, mask, respond):
-    sock = key.fileobj
+    conn = key.fileobj
     data = key.data
     if mask & selectors.EVENT_READ:
-        recv_data = sock.recv(BUFSIZE)
+        recv_data = conn.recv(BUFSIZE)
         if recv_data:
             data.inb += recv_data
         else:
-            sel.unregister(sock)
-            sock.close()
-    process(data, respond)
+            sel.unregister(conn)
+            conn.close()
+    process(data, conn, respond)
     if mask & selectors.EVENT_WRITE:
         if data.outb:
-            sent = sock.send(data.outb)
+            sent = conn.send(data.outb)
             data.outb = data.outb[sent:]
 
 
-def process(data, respond):
+def process(data, conn, respond):
     while True:
         try:
             idx = data.inb.index(b"\n")
@@ -62,3 +65,14 @@ def process(data, respond):
         response = respond(msg).encode()
         data.inb = data.inb[idx + 1 :]
         data.outb += response
+        if pyrelight.global_exit:
+            # Force-feed the rest of our output to the current client,
+            # then disrespect other clients by exiting immediately.
+            conn.settimeout(0.5)
+            try:
+                while data.outb:
+                    sent = conn.send(data.outb)
+                    data.outb = data.outb[sent:]
+            except socket.timeout:
+                pass
+            sys.exit(0)
