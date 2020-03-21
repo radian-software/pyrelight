@@ -33,6 +33,7 @@ helps = {
     "goto": "go to a specific numbered song in the play queue",
     "first": "go to the first song in the play queue",
     "last": "go to the last song in the play queue",
+    "status": "display the current playback status",
     "inorder": "play songs in seqeuential order",
     "random": "play songs in random order, no constraints",
     "shuffle": "play songs in random order, but play all before repeating",
@@ -94,6 +95,8 @@ parser_goto.add_argument(
 parser_first = subparsers.add_parser("first", help=helps["first"])
 parser_last = subparsers.add_parser("last", help=helps["last"])
 
+parser_status = subparsers.add_parser("status", help=helps["status"])
+
 for subparser in (
     parser_play,
     parser_pause,
@@ -106,6 +109,7 @@ for subparser in (
     parser_goto,
     parser_first,
     parser_last,
+    parser_status,
 ):
     if subparser not in (parser_play, parser_pause):
         group = subparser.add_mutually_exclusive_group()
@@ -195,6 +199,8 @@ for subparser in (
             const="last",
             help=helps["last"],
         )
+    if subparser != parser_status:
+        subparser.add_argument("--status", action="store_true", help=helps["status"])
 
 parser_inorder = subparsers.add_parser("inorder", help=helps["inorder"])
 parser_random = subparsers.add_parser("random", help=helps["random"])
@@ -368,6 +374,13 @@ parser_songs.add_argument(
 )
 parser_view = subparsers.add_parser("view", help="display album artwork")
 parser_view.add_argument("obj", help="album or song")
+parser_list = subparsers.add_parser("list", help="list songs in play queue")
+group = parser_list.add_mutually_exclusive_group()
+group.add_argument(
+    "obj", nargs="?", help="album or playlist to list instead of play queue"
+)
+group.add_argument("--upnext", action="store_true", help="")
+parser_list.add_argument("--as", choices=("playlist", "album"), help=helps["as"])
 
 parser_show = subparsers.add_parser("show", help="inspect song metadata")
 parser_show.add_argument("obj", help="playlist, album, or song")

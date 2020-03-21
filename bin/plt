@@ -11,13 +11,38 @@ function quote() {
 
 function quote_args() {
     while (( $# > 0 )); do
-        echo -n "$1" | quote
+        printf "%s" "$1" | quote
         if (( $# > 1 )); then
             echo -n " "
         fi
         shift
     done
     echo
+}
+
+function connect() {
+    exit_code=
+    nc -N -U server <<< "${msg}" 2>/dev/null | while read line; do
+        echo "got line: |${line}|" >&2
+        if [[ -z "${exit_code}" ]]; then
+            case "${line}" in
+                success) exit_code=0 ;;
+                error  ) exit_code=1 ;;
+                *      )
+                    echo "plt: got unexpected response from server: ${line}" >&2
+                    exit 1
+            esac
+        else
+            printf "%s\n" "${line}" >&2
+        fi
+    done
+    if (( "${PIPESTATUS[0]}" != 0 )); then
+        return 1
+    elif [[ -z "${exit_code}" ]]; then
+        echo "plt: didn't get any response from server" >&2
+        exit 1
+    fi
+    exit "${exit_code}"
 }
 
 script_path="${BASH_SOURCE[0]}"
@@ -27,22 +52,22 @@ src_dir="$(cd -P -- "${script_dir}/.." && pwd -P)"
 msg="$(quote_args "$@")"
 
 cd "${src_dir}"
-if ! nc -N -U server <<< "${msg}" 2>/dev/null; then
+if ! connect; then
     rm -f server
     python3 -u -m pyrelight &>server.log &
     for i in {1..50}; do
         if [[ -S server ]]; then
-            nc -N -U server <<< "${msg}"
-            exit
+            connect
+        elif ! kill -0 "$!" 2>/dev/null; then
+            break
         fi
         sleep 0.01
     done
-    echo "failed to start server!" >&2
     if [[ -s server.log ]]; then
-        echo "here is the error message we got from the server:" >&2
-        cat server.log | sed 's/^/  /' >&2
+        echo "plt: failed to start server:" >&2
+        sed 's/^/  /' server.log >&2
     else
-        echo "unfortunately, we didn't get any diagnostic info from the server." >&2
+        echo "plt: failed to start server, no diagnostic information available" >&2
     fi
     exit 1
 fi

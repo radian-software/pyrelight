@@ -113,6 +113,8 @@ goto <idx>
 
 first
 last
+
+status
 ```
 
 Options:
@@ -131,6 +133,8 @@ Options:
 
 --first
 --last
+
+--status
 ```
 
 ### Sequence management
@@ -220,6 +224,7 @@ playlists [<query>]
 albums [<query>]
 songs [<query>]
 view <obj>
+list [<obj>]
 ```
 
 Options for `songs`:
@@ -227,6 +232,13 @@ Options for `songs`:
 ```
 --filter <key>(=|~)<value>,...
 --sort <key>[:(s|r|x)],...
+```
+
+Options for `list`:
+
+```
+--as (playlist | album)
+--upnext
 ```
 
 ### Editing

@@ -10,6 +10,15 @@ print("Starting PYRELIGHT server.", file=sys.stderr)
 
 os.chdir(pathlib.Path(__file__).parent.parent.resolve())
 
-pyrelight.server.listen(
-    "server", lambda msg: repr(pyrelight.cmdline.parser.parse_args(shlex.split(msg))),
-)
+
+def respond(msg):
+    args = shlex.split(msg)
+    try:
+        pyrelight.cmdline.parser.parse_args(args)
+        result = "done"
+    except Exception:
+        return "error" + ("\n" + result if result else "")
+    return "success" + ("\n" + result if result else "")
+
+
+pyrelight.server.listen("server", respond)
