@@ -66,7 +66,7 @@ if ! connect; then
     done
     if [[ -s server.log ]]; then
         echo "plt: failed to start server:" >&2
-        sed 's/^/  /' server.log >&2
+        sed 's/^/| /' server.log >&2
     else
         echo "plt: failed to start server, no diagnostic information available" >&2
     fi
