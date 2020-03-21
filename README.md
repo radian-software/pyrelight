@@ -141,11 +141,13 @@ Commands:
 inorder
 random
 shuffle
-shufall
+shufnew
 
 stop
 loop
 loop1
+
+finish
 ```
 
 Options:
@@ -154,19 +156,21 @@ Options:
 --inorder
 --random
 --shuffle
---shufall
+--shufnew
 
 --stop
 --loop
 --loop1
 
 --upnext
+
+--finish
 ```
 
 ### Play queue and playlist management
 
-Selections can be albums, songs, or playlists. Comparison is done with
-a normalized substring match.
+Objects can be albums, songs, or playlists. Comparison is done with a
+normalized substring match.
 
 Commands:
 
@@ -189,22 +193,22 @@ randomize
 Options:
 
 ```
---exact
-
 --as (playlist | album | song)
 --from <album>
 
---playlist
+--playlist <playlist>
 --upnext
 
 --inorder
 --random
 --shuffle
---shufall
+--shufnew
 
 --stop
 --loop
 --loop1
+
+--finish
 ```
 
 ### Query
@@ -215,13 +219,7 @@ Commands:
 playlists [<query>]
 albums [<query>]
 songs [<query>]
-view [<obj>]
-```
-
-Common options:
-
-```
---exact
+view <obj>
 ```
 
 Options for `songs`:
@@ -244,9 +242,8 @@ edit <obj> [<key>...]
 Options:
 
 ```
---exact
-
 --as (playlist | album | song)
+--from <playlist>
 ```
 
 ### Version-control
