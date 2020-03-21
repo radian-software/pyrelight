@@ -270,6 +270,6 @@ revert [<hash>]
 ### Administrative
 
 ```
+down
 help
-restart
 ```

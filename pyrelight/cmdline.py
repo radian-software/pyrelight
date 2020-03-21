@@ -434,13 +434,8 @@ parser_revert = subparsers.add_parser(
 )
 parser_revert.add_argument("hash", nargs="?", help="Git commit hash")
 
+parser_down = subparsers.add_parser("down", help="shut down Pyrelight command server")
 parser_help = subparsers.add_parser("help", help="display this message")
-parser_restart = subparsers.add_parser(
-    "restart", help="restart Pyrelight command server"
-)
-
-for flag in ("-?", "-help"):
-    parser.add_argument(flag, dest="help", action="store_true", help=argparse.SUPPRESS)
 
 
 def parse_cmdline(cmdline):
