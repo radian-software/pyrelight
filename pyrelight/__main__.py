@@ -9,9 +9,19 @@ import pyrelight.cmdline
 import pyrelight.commands
 import pyrelight.server
 
-log("Starting PYRELIGHT server.")
+log("Starting Pyrelight server...")
 
 os.chdir(pathlib.Path(__file__).parent.parent.resolve())
+
+if "PYRELIGHT_HOME" not in os.environ:
+    log("You need to set PYRELIGHT_HOME before starting the server.")
+    sys.exit(1)
+
+pyrelight.root = pathlib.Path(os.environ["PYRELIGHT_HOME"]).resolve()
+
+if not pyrelight.root.is_dir():
+    log(f"Directory does not exist: PYRELIGHT_HOME={pyrelight.root}")
+    sys.exit(1)
 
 
 def respond(msg):
@@ -32,7 +42,7 @@ def respond(msg):
             status = "success"
     except PyrelightError as e:
         status = "error"
-        output += str(e) + "\n"
+        output += f"pyrelight: {str(e)}\n"
     except Exception as e:
         status = "error"
         output += traceback.format_exc()

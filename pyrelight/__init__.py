@@ -2,6 +2,9 @@ import datetime
 import sys
 
 
+root = None
+
+
 global_exit = False
 
 
