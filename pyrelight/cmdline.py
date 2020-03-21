@@ -448,6 +448,9 @@ def parse_cmdline(cmdline):
     global_output = ""
     try:
         args = parser.parse_args(cmdline)
+        if args.subcommand == "help":
+            parser.print_help()
+            parser.exit()
         return (args, global_output)
     except ArgumentParserExit as e:
         return (e.status == 0, global_output)
