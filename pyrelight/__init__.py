@@ -14,5 +14,5 @@ class PyrelightError(Exception):
 
 
 def log(message):
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{timestamp}] {message}", file=sys.stderr)
