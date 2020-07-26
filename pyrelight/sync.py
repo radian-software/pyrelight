@@ -5,19 +5,16 @@ import pathlib
 import subprocess
 
 import pyrelight
+from pyrelight import PyrelightError
 import pyrelight.database
 import pyrelight.git
 
 
+READONLY = None
+
 metadata_file = pyrelight.root / "metadata.json"
 session_file = pyrelight.root / "session.json"
 history_file = pyrelight.root / "history.json"
-
-
-metadata_default = {}
-session_default = {}
-history_default = {}
-
 
 g_metadata_mtime = -1
 g_session_mtime = -1
@@ -30,14 +27,17 @@ def read_metadata():
     doesn't exist, use a default value for the metadata.
     """
     global g_metadata_mtime
-    with pyrelight.database.metadata_lock:
-        try:
-            with open(metadata_file) as f:
-                g_metadata_mtime = os.fstat(f.fileno())
-                pyrelight.database.metadata = json.load(f)
-        except FileNotFoundError:
-            g_metadata_mtime = 0
-            pyrelight.database.metadata = metadata_default
+    try:
+        with open(metadata_file) as f:
+            g_metadata_mtime = os.fstat(f.fileno())
+            metadata = json.load(f)
+            version = metadata["version"]
+            if version != 1:
+                raise PyrelightError(f"unexpected metadata version: {version}")
+            pyrelight.database.g_metadata = metadata
+    except FileNotFoundError:
+        g_metadata_mtime = 0
+        pyrelight.database.g_metadata = pyrelight.database.metadata_default
 
 
 def read_metadata_maybe():
@@ -58,9 +58,8 @@ def write_metadata():
     Write the metadata file from memory atomically.
     """
     tmp_file = pathlib.Path(str(metadata_file) + ".tmp")
-    with pyrelight.database.metadata_lock:
-        with open(tmp_file) as f:
-            json.dump(pyrelight.database.metadata, f)
+    with open(tmp_file) as f:
+        json.dump(pyrelight.database.g_metadata, f)
     tmp_file.rename(metadata_file)
 
 
@@ -68,11 +67,13 @@ def write_metadata():
 def transact_metadata(message):
     """
     Context manager to handle all the bookkeeping around reading and
-    writing the metadata file, including revision control.
+    writing the metadata file, including revision control. If message
+    is READONLY, assume no changes will be made to the metadata, and
+    don't write it back.
     """
     pyrelight.git.prepare()
     read_metadata_maybe()
-    yield
+    yield pyrelight.database.g_metadata
     if message:
         write_metadata(message)
         pyrelight.git.commit(message)

@@ -173,8 +173,8 @@ Options:
 
 ### Play queue and playlist management
 
-Objects can be albums, songs, or playlists. Comparison is done with a
-normalized substring match.
+Objects can be albums, songs, or playlists (full names, automatically
+normalized).
 
 Commands:
 
@@ -217,20 +217,22 @@ Options:
 
 ### Query
 
+Queries are processed with normalized substring matching.
+
 Commands:
 
 ```
 playlists [<query>]
 albums [<query>]
 songs [<query>]
-view <obj>
-list [<obj>]
+view <album>
+list [<playlist|album>]
 ```
 
-Options for `songs`:
+Options for `playlists`, `albums`, and `songs`:
 
 ```
---filter <key>(=|~)<value>,...
+--filter <key>(=|==|~)<value>,...
 --sort <key>[:(s|r|x)],...
 ```
 
