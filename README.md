@@ -88,11 +88,54 @@ UNIX domain socket. The command-line tool can be run in several modes:
 * As a command server, for noninteractive usage by a client such as
   `pyrelight.el`.
 
+## State
+
+* Playback: boolean, enabled or disabled. Whether playback is enabled
+  is meaningful even if there is no song selected. It affects what
+  will happen when a song becomes selected.
+* Seek position: seconds/minutes into currently selected song. This
+  only has a value when there is a selected song. If the selected song
+  hasn't started playing, it's set to zero. Clamped to length of
+  currently selected song.
+* Play queue: ordered list of songs (references, not affected by
+  metadata changes but still affected by song deletions). Can be
+  empty.
+* Up next queue: same as play queue.
+* Queue index: pointer into play queue. Has a value if and only if the
+  play queue is not empty. Clamped to bounds of play queue.
+
 ## Command interface
 
 Commands are parsed using the standard GNU conventions. Input and
 output are done via stdio if relevant to the given command. They may
-be in JSON or other format.
+be in JSON or another format.
+
+Basic subcommands are as follows:
+
+* Playback control
+    * `play`: Enable playback.
+    * `pause`: Disable playback.
+    * `toggle`: Toggle playback between enabled and disabled.
+    * `rewind [<amt>]`: Set seek position to beginning of song, or if
+      `<amt>` is provided then backwards that many seconds/minutes
+      from the current position. No effect if no selected song.
+    * `ff [<amt>]`: Set seek position to end of song (actually,
+      beginning of next song), or if `<amt>` is provided then forwards
+      that many seconds/minutes from the current position. No effect
+      if no selected song.
+    * `seek <time>`: Set seek position directly.
+* Play queue navigation
+    * `prev [<num>]`: Go to beginning of previous song, or back
+      `<num>` songs (default behavior corresponds to `<num>` of 1).
+      Negative and zero `<num>` is allowed.
+    * `next [<num>]`: Go to beginning of next song, or forwards
+      `<num>` songs (default behavior corresponds to `<num>` of 1).
+      Negative and zero `<num>` is allowed.
+    * `goto <idx>`: Go to beginning of song at given index in play
+      queue (indexed from 1).
+    * `first`: Go to beginning of first song in play queue.
+    * `last`: Go to beginning of last song in play queue.
+    * `finish`: Go to ... FIXME
 
 ### Playback control
 
@@ -113,6 +156,7 @@ goto <idx>
 
 first
 last
+finish
 
 status
 ```
@@ -133,6 +177,7 @@ Options:
 
 --first
 --last
+--finish
 
 --status
 ```
@@ -150,8 +195,6 @@ shufnew
 stop
 loop
 loop1
-
-finish
 ```
 
 Options:
@@ -167,8 +210,6 @@ Options:
 --loop1
 
 --upnext
-
---finish
 ```
 
 ### Play queue and playlist management
@@ -192,6 +233,8 @@ tolast <idx> [--to <idx>]
 remove <idx> [--to <idx>]
 
 randomize
+
+finalize
 ```
 
 Options:
@@ -212,7 +255,7 @@ Options:
 --loop
 --loop1
 
---finish
+--finalize
 ```
 
 ### Query
