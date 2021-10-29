@@ -1,6 +1,9 @@
 # Pyrelight
 
-Attempt #4 at a personal music library manager and media player.
+Attempt #4 at a personal music library manager and media player. This
+project was abandoned when I realized that I really needed a graphical
+interface, and that I also needed cross-device synchronization and
+mobile support.
 
 ## Abstractions
 
