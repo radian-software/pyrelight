@@ -2,7 +2,7 @@
 name = "pyrelight"
 version = "0"
 description = "Personal music library manager, replaces iTunes."
-authors = ["Radon Rosborough <radon.neon@gmail.com>"]
+authors = ["Radian LLC <contact+pyrelight@radian.codes"]
 license = "MIT"
 
 [tool.poetry.dependencies]
